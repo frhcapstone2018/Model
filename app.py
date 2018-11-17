@@ -13,10 +13,10 @@ def runcheck(df):
         df.drop('MS DRG Description',axis=1,inplace=True)
     final_df = pd.get_dummies(data=df)
     return final_df
-@app.route('/', methods=['POST'])
+@app.route('/')
 def index():
     return '<h1> Hello World </h1>'
-    
+
 @app.route('/', methods=['POST'])
 def predict():
     AgeP = request.get_json()['Age']
