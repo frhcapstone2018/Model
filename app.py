@@ -13,7 +13,8 @@ def runcheck(df):
         df.drop('MS DRG Description',axis=1,inplace=True)
     final_df = pd.get_dummies(data=df)
     return final_df
-@app.route('/')
+
+@app.route('/', methods=['GET'])
 def index():
     return '<h1> Hello World </h1>'
 
