@@ -3,8 +3,10 @@ from sklearn.externals import joblib
 import pandas as pd
 import numpy as np
 import datetime
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+CORS(app)
 
 def runcheck(df):
     if all(df['Attending Physician'] == 'ALOKA, FERAS'):
@@ -15,6 +17,7 @@ def runcheck(df):
     return final_df
 
 @app.route('/', methods=['POST'])
+@cross_origin()
 def predict():
     clf = joblib.load('linear_regression_model_for_charges.pkl')
     model_columns = joblib.load('model_columns.pkl')
