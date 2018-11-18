@@ -22,6 +22,7 @@ def index():
 def predict():
     clf = joblib.load('linear_regression_model_for_charges.pkl')
     model_columns = joblib.load('model_columns.pkl')
+    total_columns = joblib.load('linear_regression_model_for_total_direct_variable.pkl')
     AgeP = request.get_json()['Age']
     DateP = request.get_json()['Admit Date']
     PhysicianName = request.get_json()['Attending Physician']
@@ -41,10 +42,9 @@ def predict():
     input_df = input_df[model_columns]
      
     X = input_df.iloc[:,:].values
-    prediction = clf.predict(X)
-    return jsonify({'prediction': list(prediction)})
+    prediction_charges = clf.predict(X)
+    prediction_total_direct_variable = total_columns.predict(X)
+    return jsonify({'Charges': list(prediction_charges)},{'Direct_Variable':list(prediction_total_direct_variable)})
 
 if __name__=="__main__":
-    clf = joblib.load('linear_regression_model_for_charges.pkl')
-    model_columns = joblib.load('model_columns.pkl')
     app.run()
