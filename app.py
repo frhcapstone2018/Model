@@ -20,6 +20,8 @@ def index():
 
 @app.route('/', methods=['POST'])
 def predict():
+    clf = joblib.load('linear_regression_model_for_charges.pkl')
+    model_columns = joblib.load('model_columns.pkl')
     AgeP = request.get_json()['Age']
     DateP = request.get_json()['Admit Date']
     PhysicianName = request.get_json()['Attending Physician']
