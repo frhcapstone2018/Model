@@ -14,10 +14,6 @@ def runcheck(df):
     final_df = pd.get_dummies(data=df)
     return final_df
 
-@app.route('/', methods=['GET'])
-def index():
-    return '<h1> Hello World </h1>'
-
 @app.route('/', methods=['POST'])
 def predict():
     clf = joblib.load('linear_regression_model_for_charges.pkl')
