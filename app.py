@@ -3,9 +3,10 @@ from sklearn.externals import joblib
 import pandas as pd
 import numpy as np
 import datetime
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
-
+CORS(app)
 def runcheck(df):
     if all(df['Attending Physician'] == 'ADIB, KEENAN'):
         df.drop('Attending Physician',axis=1,inplace=True)
@@ -22,6 +23,7 @@ def runcheckLOS(df):
     return final_df
 
 @app.route('/Costs', methods=['POST'])
+@cross_origin()
 def predict():
     DateP = request.get_json()['Admit Date']
     PhysicianName = request.get_json()['Attending Physician']
@@ -48,6 +50,7 @@ def predict():
     return jsonify({'total_direct_variable': list(totalDirectVariable)},{'total_Charges':list(totalCharges)},{'total_other':list(totalOther)})
 	 
 @app.route('/LOS', methods=['POST'])
+@cross_origin()
 def predictLOS():
     DRG = request.get_json()['DRG'] 
     final_dataset = pd.DataFrame([DRG],columns=["MS DRG Description"])
