@@ -25,16 +25,27 @@ def runcheckLOS(df):
 @app.route('/Costs', methods=['POST'])
 @cross_origin()
 def predict():
+    losp = joblib.load('perfect_predictor_averageLOS.pkl')
+    model_columns_los = joblib.load('model_columns_los.pkl')
     clf = joblib.load('linear_regression_model_for_total_direct_variable.pkl')
     olf = joblib.load('linear_regression_model_for_Total_Other.pkl')
     elf = joblib.load('linear_regression_model_for_charges.pkl')
     model_columns = joblib.load('model_columns_new.pkl')
-    
+
+    DRG = request.get_json()['DRG'] 
+    diabeticFactor = request.get_json()['D_Factor'] 
     DateP = request.get_json()['Admit Date']
     PhysicianName = request.get_json()['Attending Physician']
-    DRG = request.get_json()['DRG']
-    LOS =  request.get_json()['LOS']
-     
+
+    final_dataset_1 = pd.DataFrame([DRG],columns=["MS DRG Description"])
+    input_df_1 = runcheckLOS(final_dataset_1)
+    for col in model_columns_los:
+        if col not in input_df_1.columns:
+            input_df_1[col] = 0
+    input_df_1 = input_df_1[model_columns_los]
+    X = input_df_1.iloc[:,:].values
+    LOS = losp.predict(X) * diabeticFactor
+    LOS = float(LOS[0])
     final_dataset = pd.DataFrame([[DateP, PhysicianName, DRG, LOS]],columns=["Admit Date", "Attending Physician","MS DRG Description","LOS"])
     epoch_0 = datetime.datetime(1970,1,1)
     final_dataset['Admit Date']=(pd.to_datetime(final_dataset['Admit Date'])-epoch_0) / np.timedelta64(1,'D')
@@ -51,25 +62,7 @@ def predict():
     totalDirectVariable = clf.predict(X)
     totalOther = olf.predict(X)
     totalCharges = elf.predict(X)
-    print(totalDirectVariable, totalOther, totalCharges)
-    return jsonify({'total_direct_variable': list(totalDirectVariable)},{'total_Charges':list(totalCharges)},{'total_other':list(totalOther)})
-	 
-@app.route('/LOS', methods=['POST'])
-@cross_origin()
-def predictLOS():
-    losp = joblib.load('perfect_predictor_averageLOS.pkl')
-    model_columns_los = joblib.load('model_columns_los.pkl')
-
-    DRG = request.get_json()['DRG'] 
-    final_dataset = pd.DataFrame([DRG],columns=["MS DRG Description"])
-    input_df = runcheckLOS(final_dataset)
-    for col in model_columns_los:
-        if col not in input_df.columns:
-            input_df[col] = 0
-    input_df = input_df[model_columns_los]
-    X = input_df.iloc[:,:].values
-    prediction = losp.predict(X)
-    return jsonify({'LOS': list(prediction)})
+    return jsonify({'total_direct_variable': list(totalDirectVariable)},{'total_Charges':list(totalCharges)},{'total_other':list(totalOther)},{'LOS':LOS})
 
 if __name__=="__main__":
     losp = joblib.load('perfect_predictor_averageLOS.pkl')
