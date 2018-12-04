@@ -25,6 +25,11 @@ def runcheckLOS(df):
 @app.route('/Costs', methods=['POST'])
 @cross_origin()
 def predict():
+    clf = joblib.load('linear_regression_model_for_total_direct_variable.pkl')
+    olf = joblib.load('linear_regression_model_for_Total_Other.pkl')
+    elf = joblib.load('linear_regression_model_for_charges.pkl')
+    model_columns = joblib.load('model_columns_new.pkl')
+    
     DateP = request.get_json()['Admit Date']
     PhysicianName = request.get_json()['Attending Physician']
     DRG = request.get_json()['DRG']
@@ -52,6 +57,9 @@ def predict():
 @app.route('/LOS', methods=['POST'])
 @cross_origin()
 def predictLOS():
+    losp = joblib.load('perfect_predictor_averageLOS.pkl')
+    model_columns_los = joblib.load('model_columns_los.pkl')
+
     DRG = request.get_json()['DRG'] 
     final_dataset = pd.DataFrame([DRG],columns=["MS DRG Description"])
     input_df = runcheckLOS(final_dataset)
